@@ -6,7 +6,7 @@ export default [
   { ignores: ['dist'] },
   {
     files: ['**/*.{js,jsx}'],
-    languageOptions: { ecmaVersion: 2020, parserOptions: { ecmaFeatures: { jsx: true } }, globals: { window: 'readonly', document: 'readonly', localStorage: 'readonly', crypto: 'readonly', FormData: 'readonly' } },
+    languageOptions: { ecmaVersion: 2020, parserOptions: { ecmaFeatures: { jsx: true } }, globals: { window: 'readonly', document: 'readonly', localStorage: 'readonly', crypto: 'readonly', FormData: 'readonly', URL: 'readonly', Blob: 'readonly' } },
     plugins: { 'react-hooks': reactHooks, 'react-refresh': reactRefresh },
     rules: { ...js.configs.recommended.rules, ...reactHooks.configs.recommended.rules, 'react-refresh/only-export-components': 'off', 'no-unused-vars': 'off' },
   },

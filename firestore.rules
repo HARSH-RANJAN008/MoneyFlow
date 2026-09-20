@@ -8,7 +8,12 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, create, update: if isOwner(userId);
+      // A user may create their own profile, but cannot promote themselves to
+      // administrator from the browser. Admin roles must be set by a trusted
+      // server or in the Firebase console.
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.role == 'user';
+      allow update: if isOwner(userId) && request.resource.data.role == resource.data.role;
       allow delete: if false;
       match /{collection}/{document} {
         allow read, write: if isOwner(userId);

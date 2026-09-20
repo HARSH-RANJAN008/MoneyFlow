@@ -5,10 +5,12 @@ import { AppShell, PageAction } from '../components/layout/AppShell'
 import { Badge, Button, Card, Field, IconButton, Input, Modal, Select, Toast } from '../components/ui/Primitives'
 import { bills as seedBills } from '../data/demoData'
 import { formatCurrency } from '../lib/utils'
+import { useUserCollection } from '../firebase/data'
 
 const billIcons = { wifi: Icons.Wifi, home: Icons.House, music: Icons.Music2, zap: Icons.Zap }
 export default function BillsPage() {
-  const [items, setItems] = useState(seedBills)
+  const { items, saveItem } = useUserCollection('bills', seedBills)
+  const setItems = (nextItems) => nextItems.forEach((item) => saveItem(item))
   const [open, setOpen] = useState(false)
   const [toast, setToast] = useState(null)
   const dueTotal = items.filter((item) => !item.paid).reduce((total, item) => total + item.amount, 0)

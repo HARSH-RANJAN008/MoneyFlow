@@ -8,6 +8,7 @@ import { TransactionTable } from '../components/dashboard/TransactionTable'
 import { Button, Card, IconButton, Modal } from '../components/ui/Primitives'
 import { accounts, categoryData, spendingData, transactions } from '../data/demoData'
 import { formatCurrency } from '../lib/utils'
+import { useAuth } from '../context/AuthContext'
 
 const chartTooltip = { cursor: { fill: 'transparent' }, contentStyle: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, boxShadow: '0 10px 20px rgba(10,31,38,.08)' }, labelStyle: { color: 'var(--muted)' }, itemStyle: { color: 'var(--text)' }, formatter: (value) => formatCurrency(value) }
 
@@ -15,9 +16,11 @@ function BalanceCard() { return <Card className="balance-card"><div className="b
 function QuickAction({ icon: Icon, label, text, onClick }) { return <button className="quick-action" onClick={onClick}><span><Icon size={19} /></span><div><strong>{label}</strong><small>{text}</small></div><ChevronRight size={18} /></button> }
 
 export default function DashboardPage() {
+  const { user } = useAuth()
   const [transferOpen, setTransferOpen] = useState(false)
   const [transaction, setTransaction] = useState(null)
-  return <AppShell title="Good morning, Arjun" subtitle="Monday, 17 August" action={<PageAction onClick={() => setTransferOpen(true)}>Send money</PageAction>}>
+  const firstName = (user?.displayName || user?.email || 'there').trim().split(/\s|@/)[0]
+  return <AppShell title={`Good morning, ${firstName}`} subtitle="Your financial overview" action={<PageAction onClick={() => setTransferOpen(true)}>Send money</PageAction>}>
     <motion.div className="dashboard-hero" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><div className="dashboard-hero-copy"><span className="eyebrow">YOUR FINANCIAL OVERVIEW</span><h2>Every rupee has a place.<br /><em>See yours clearly.</em></h2><p>Here’s a gentle snapshot of your finances this month.</p></div><BalanceCard /></motion.div>
     <div className="metric-grid"><MetricCard label="Available to spend" value={77500} change={12.4} hint="after bills & goals" /><MetricCard label="Monthly income" value={52000} change={8.2} tone="blue" /><MetricCard label="Monthly spending" value={31750} change={4.8} tone="sand" hint="61% of your income" /><MetricCard label="Savings this month" value={20250} change={18.6} tone="violet" /></div>
     <div className="content-grid main-charts"><Card className="chart-card spending-chart"><div className="card-title-row"><div><span className="eyebrow">SPENDING ANALYTICS</span><h2>Cash flow</h2></div><select className="period-select" defaultValue="6 months"><option>6 months</option><option>This year</option></select></div><div className="chart-legend"><span><i className="legend-income" />Income</span><span><i className="legend-spending" />Spending</span></div><ResponsiveContainer width="100%" height={245}><AreaChart data={spendingData} margin={{ top: 12, right: 4, left: -22, bottom: 0 }}><defs><linearGradient id="incomeFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4bbabd" stopOpacity={0.22} /><stop offset="100%" stopColor="#4bbabd" stopOpacity={0} /></linearGradient></defs><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted)', fontSize: 12 }} dy={9} /><YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted)', fontSize: 11 }} tickFormatter={(value) => `₹${value / 1000}k`} /><Tooltip {...chartTooltip} /><Area type="monotone" dataKey="income" stroke="#268d91" strokeWidth={2.4} fill="url(#incomeFill)" /><Area type="monotone" dataKey="spending" stroke="#e1a14f" strokeWidth={2.4} fill="transparent" /></AreaChart></ResponsiveContainer></Card>
