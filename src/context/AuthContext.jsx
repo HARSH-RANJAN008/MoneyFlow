@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { createUserWithEmailAndPassword, EmailAuthProvider, getMultiFactorResolver, GoogleAuthProvider, PhoneAuthProvider, RecaptchaVerifier, multiFactor, onAuthStateChanged, PhoneMultiFactorGenerator, reauthenticateWithCredential, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut, updatePassword, updateProfile } from 'firebase/auth'
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
-import { firebaseEnabled, getFirebase } from '../firebase/config'
+import { firebaseEnabled, getFirebase, initializeFirebase } from '../firebase/config'
 
 const AuthContext = createContext(null)
 const demoUser = { uid: 'demo-user', displayName: 'Arjun Mehta', email: 'arjun@moneyflow.demo', photoURL: null, role: 'admin' }
@@ -29,19 +29,63 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+  let unsubscribe
+  let cancelled = false
+
+  const startAuth = async () => {
     if (!firebaseEnabled) {
       const saved = localStorage.getItem('moneyflow-user')
-      if (saved) setUser(JSON.parse(saved))
+
+      if (saved) {
+        setUser(JSON.parse(saved))
+      }
+
       setLoading(false)
-      return undefined
+      return
     }
-    const { auth } = getFirebase()
-    return onAuthStateChanged(auth, async (nextUser) => {
-      if (!nextUser) { setUser(null); setLoading(false); return }
-      try { setUser(await loadProfile(nextUser)) } catch { setUser(nextUser) }
+
+    try {
+      const firebase = await initializeFirebase()
+
+      if (cancelled) return
+
+      if (!firebase?.auth) {
+        // console.error('Firebase initialization failed.')
+        setLoading(false)
+        return
+      }
+
+      const { auth } = firebase
+
+      unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
+        if (!nextUser) {
+          setUser(null)
+          setLoading(false)
+          return
+        }
+
+        try {
+          setUser(await loadProfile(nextUser))
+        } catch (error) {
+          // console.error('Failed to load profile:', error)
+          setUser(nextUser)
+        }
+
+        setLoading(false)
+      })
+    } catch (error) {
+      // console.error('Firebase initialization error:', error)
       setLoading(false)
-    })
-  }, [])
+    }
+  }
+
+  startAuth()
+
+  return () => {
+    cancelled = true
+    if (unsubscribe) unsubscribe()
+  }
+}, [])
 
   const saveDemoUser = (nextUser) => { localStorage.setItem('moneyflow-user', JSON.stringify(nextUser)); setUser(nextUser) }
   const value = useMemo(() => ({
