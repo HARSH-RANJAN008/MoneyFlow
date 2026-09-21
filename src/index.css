@@ -48,6 +48,8 @@
 
 /* Keep the profile/theme controls fully visible when the page title is long. */
 .topbar-title { min-width:0; flex:1 1 auto; overflow:hidden }
+
+.help-card a { position:relative; z-index:1; color:#e8f7f2; font-size:10px; font-weight:600 }.help-card a span { margin-left:3px }
 .topbar-title > div:last-child { min-width:0 }
 .topbar-title h1 { overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .topbar-actions { flex:none; min-width:0 }

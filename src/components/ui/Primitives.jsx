@@ -7,7 +7,7 @@ export function Button({ children, className, variant = 'primary', size = 'md', 
 }
 
 export function IconButton({ children, className, label, ...props }) {
-  return <button className={cn('icon-button', className)} aria-label={label} title={label} {...props}>{children}</button>
+  return <button type="button" className={cn('icon-button', className)} aria-label={label} title={label} {...props}>{children}</button>
 }
 
 export function Card({ children, className, ...props }) {

@@ -25,11 +25,12 @@ Open the local address Vite prints. In demo mode, sign in with any valid email a
 1. Create a Firebase project and register a **Web app**.
 2. Enable Email/Password and Google in **Authentication → Sign-in method**.
 3. Create a Firestore database and a Storage bucket.
-4. Copy `.env.example` to `.env.local` and enter the values from Firebase’s web configuration.
+4. Copy `.env.example` to the environment file used by your **server/API**, then enter the Firebase values there. Never place them in a Vite environment file.
 5. Publish [firestore.rules](./firestore.rules) in Firestore Rules and [storage.rules](./storage.rules) in Storage Rules.
-6. To give a user admin access, set `users/{uid}.role` to `admin` with a trusted server-side Admin SDK or Firebase Console. Never let a client assign this role.
+6. Connect this frontend to a server-side API that owns Firebase access before enabling production authentication or cloud data.
+7. To give a user admin access, set `users/{uid}.role` with a trusted server-side Admin SDK or Firebase Console. Never let a client assign this role.
 
-No Firebase service-account or secret is committed here. Values beginning with `VITE_` are public web configuration values, not private keys.
+The included static frontend deliberately does not read Firebase environment variables and therefore runs in local demo mode. A browser build cannot keep environment values secret; keep service-account credentials and any sensitive provider keys exclusively on the server.
 
 ## Firestore model
 
@@ -58,8 +59,8 @@ The supplied rules restrict every user-owned collection to its owner. Admin data
 
 1. Push this repository to GitHub.
 2. Import the repository into Vercel. Its Vite preset will detect the correct build command (`npm run build`) and output directory (`dist`).
-3. Add the Firebase variables from `.env.local` in **Project Settings → Environment Variables**.
-4. Deploy. Add the deployed domain to Firebase Authentication’s authorized domains.
+3. Deploy the backend/API separately and add Firebase values only to that service’s environment configuration.
+4. Deploy. Add the deployed domain to Firebase Authentication’s authorized domains when the backend integration is enabled.
 
 ## Resume description
 
