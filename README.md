@@ -25,12 +25,12 @@ Open the local address Vite prints. In demo mode, sign in with any valid email a
 1. Create a Firebase project and register a **Web app**.
 2. Enable Email/Password and Google in **Authentication → Sign-in method**.
 3. Create a Firestore database and a Storage bucket.
-4. Copy `.env.example` to the environment file used by your **server/API**, then enter the Firebase values there. Never place them in a Vite environment file.
+4. In Vercel, add the `FIREBASE_*` keys in **Project Settings → Environment Variables** for every deployment environment you use. The included `/api/firebase-config` serverless function reads those values at runtime; the Vite bundle never reads them.
 5. Publish [firestore.rules](./firestore.rules) in Firestore Rules and [storage.rules](./storage.rules) in Storage Rules.
-6. Connect this frontend to a server-side API that owns Firebase access before enabling production authentication or cloud data.
+6. In **Firebase Console → Authentication → Settings → Authorized domains**, add your Vercel production hostname (for example, `your-project.vercel.app`) and any custom domain you use. Enter hostnames only—without `https://` or paths.
 7. To give a user admin access, set `users/{uid}.role` with a trusted server-side Admin SDK or Firebase Console. Never let a client assign this role.
 
-The included static frontend deliberately does not read Firebase environment variables and therefore runs in local demo mode. A browser build cannot keep environment values secret; keep service-account credentials and any sensitive provider keys exclusively on the server.
+The frontend obtains only the Firebase Web App configuration from the same-origin Vercel endpoint at runtime. Firebase Web App configuration is necessarily visible to a browser client; do not put a service-account private key, OAuth client secret, or any other private credential in these variables. Keep private credentials exclusively in server-only variables and protect data with the published Firebase rules.
 
 ## Firestore model
 
@@ -59,8 +59,8 @@ The supplied rules restrict every user-owned collection to its owner. Admin data
 
 1. Push this repository to GitHub.
 2. Import the repository into Vercel. Its Vite preset will detect the correct build command (`npm run build`) and output directory (`dist`).
-3. Deploy the backend/API separately and add Firebase values only to that service’s environment configuration.
-4. Deploy. Add the deployed domain to Firebase Authentication’s authorized domains when the backend integration is enabled.
+3. In **Project Settings → Environment Variables**, add the six `FIREBASE_*` values from `.env.example` to Production (and Preview if required). Do not upload an `.env` file or use `VITE_` names.
+4. Deploy, then add the deployed hostname under **Firebase Authentication → Settings → Authorized domains**. Firebase applies that setting immediately; refresh the site after saving it.
 
 ## Resume description
 
